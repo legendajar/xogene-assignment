@@ -40,6 +40,3 @@ Make sure you have the following installed on your machine:
 5. Access the Application
     ```bash
     http://localhost:5173/drugs/search
-
-
-
