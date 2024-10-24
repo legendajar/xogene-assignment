@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Navbar from './Navbar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { CircleAlertIcon, SearchIcon } from 'lucide-react';
+import { CircleAlertIcon, SearchIcon, Loader2Icon } from 'lucide-react'; // Added loader icon
 import Card from '@/components/Card/Card';
 import axios from 'axios';
 
@@ -11,29 +11,37 @@ const DrugSearchPage = () => {
     const [searchResults, setSearchResults] = useState([]);  // State for search results
     const [suggestions, setSuggestions] = useState([]);      // State for suggestions
     const [noResults, setNoResults] = useState(false);       // State for handling no results
+    const [loading, setLoading] = useState(false);           // Loading state
 
     const changeInputHandler = (e) => {
         setInput(e.target.value);
     };
 
+    const suggestionSearch = async (suggestion) => {
+        setInput(suggestion); // Update the input with the clicked suggestion
+        await submitHandler(); // Perform the search for the selected suggestion
+    };
+
+    // Debounced API request for suggestions
     const suggestionAPI = async(input) => {
         try {
             const res = await axios.get(`https://rxnav.nlm.nih.gov/REST/spellingsuggestions.json?name=${input}`);
-            if (res.data.suggestionGroup.suggestionList) {
-                console.log(res.data.suggestionGroup.suggestionList.suggestion)
-                return res.data.suggestionGroup.suggestionList.suggestion;
+            
+            const suggestionGroup = res.data.suggestionGroup;
+            if (suggestionGroup?.suggestionList?.suggestion?.length > 0) {
+                return suggestionGroup.suggestionList.suggestion;
             } else {
                 return [];
             }
         } catch (err) {
             console.log(err);
-            alert('Error fetching suggestions.');
-            return [];
+            return []; // Return an empty array if there's an error
         }
     };
-
+    
     const submitHandler = async(e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
+        setLoading(true);
         setNoResults(false);
         setSearchResults([]);
         setSuggestions([]);
@@ -42,8 +50,8 @@ const DrugSearchPage = () => {
             const res = await axios.get(`https://rxnav.nlm.nih.gov/REST/drugs.json?name=${input}`);
             const conceptGroup = res.data.drugGroup.conceptGroup;
 
-            if (conceptGroup && conceptGroup.length > 0) {
-                setSearchResults(conceptGroup);  // Set the search results to the state
+            if (conceptGroup && conceptGroup.length > 0 && conceptGroup[1]?.conceptProperties) {
+                setSearchResults(conceptGroup[1].conceptProperties);  // Set the search results to the state
             } else {
                 // If no drugs are found, call the suggestions API
                 const suggestions = await suggestionAPI(input);
@@ -56,6 +64,8 @@ const DrugSearchPage = () => {
         } catch (err) {
             console.log(err);
             alert('Error fetching drugs.');
+        } finally {
+            setLoading(false); // Set loading to false after the API call
         }
     };
 
@@ -74,10 +84,13 @@ const DrugSearchPage = () => {
                         onChange={changeInputHandler}
                         placeholder="Enter the drug name..."
                     />
-                    <Button type="submit">
-                        <SearchIcon />
+                    <Button type="submit" disabled={loading}>
+                        {loading ? <Loader2Icon className="animate-spin" /> : <SearchIcon />}
                     </Button>
                 </form>
+
+                {/* Loading State */}
+                {loading && <div className="text-lg font-bold">Searching...</div>}
 
                 {/* Search Results */}
                 {searchResults.length > 0 && (
@@ -94,7 +107,13 @@ const DrugSearchPage = () => {
                         <h3>Did you mean:</h3>
                         <ul>
                             {suggestions.map((suggestion, index) => (
-                                <li key={index}>{suggestion}</li>
+                                <li 
+                                    key={index} 
+                                    onClick={() => suggestionSearch(suggestion)} // Use an arrow function to prevent immediate execution
+                                    className='cursor-pointer hover:text-blue-500'
+                                >
+                                    {suggestion}
+                                </li>
                             ))}
                         </ul>
                     </div>

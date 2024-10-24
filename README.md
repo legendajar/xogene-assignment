@@ -1,8 +1,45 @@
-# React + Vite
+# Xogene Assignment
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository contains the code for the Xogene assignment, which includes a drug search application.
 
-Currently, two official plugins are available:
+## Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Follow the steps below to set up and run the project on your local machine.
+
+### Prerequisites
+
+Make sure you have the following installed on your machine:
+
+- [Node.js](https://nodejs.org/) (version 14 or higher)
+- [npm](https://www.npmjs.com/) (comes with Node.js)
+
+### Installation Steps
+
+1. **Clone the Repository**
+
+   Open your terminal and run the following command:
+
+   ```bash
+   git clone https://github.com/legendajar/xogene-assignment
+
+2. Change your working directory to the cloned repository:
+
+    ```bash
+    cd xogene-assignment
+
+3. Install Dependencies
+
+    ```bash
+    npm install
+
+4. Run the Development Server
+    ```bash
+    npm run dev
+
+
+5. Access the Application
+    ```bash
+    http://localhost:5173/drugs/search
+
+
+
